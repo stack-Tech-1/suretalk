@@ -1,4 +1,4 @@
-require('dotenv').config(); // Load environment variables
+require('dotenv').config(); // Ensure dotenv is required if using a .env file
 
 const express = require('express');
 const twilio = require('twilio');
@@ -9,7 +9,7 @@ const path = require('path');
 const app = express();
 const PORT = 3000;
 
-// ✅ Correctly reference environment variables
+// ✅ Use process.env to reference environment variables
 const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
 
 app.use(express.json());
@@ -45,8 +45,8 @@ app.post('/fetch-recording', async (req, res, next) => {
             url: mediaUrl,
             responseType: 'stream',
             auth: {
-                username: process.env.TWILIO_ACCOUNT_SID, // ✅ Use process.env
-                password: process.env.TWILIO_AUTH_TOKEN  // ✅ Use process.env
+                username: process.env.TWILIO_ACCOUNT_SID, // ✅ Fix here too
+                password: process.env.TWILIO_AUTH_TOKEN
             }
         });
 
@@ -78,3 +78,10 @@ app.post('/fetch-recording', async (req, res, next) => {
 
 // 🛑 Error-handling middleware
 app.use((err, req, res, next) => {
+    console.error("Unhandled error:", err);
+    res.status(500).json({ error: "Internal Server Error", details: err.message });
+});
+
+app.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
+});
