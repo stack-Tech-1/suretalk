@@ -1,3 +1,5 @@
+require('dotenv').config(); // Load environment variables
+
 const express = require('express');
 const twilio = require('twilio');
 const axios = require('axios');
@@ -7,7 +9,8 @@ const path = require('path');
 const app = express();
 const PORT = 3000;
 
-const client = twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
+// ✅ Correctly reference environment variables
+const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
 
 app.use(express.json());
 
@@ -31,7 +34,7 @@ app.post('/fetch-recording', async (req, res, next) => {
     try {
         // 🟢 Fetch recording details
         const recording = await client.recordings(recordingSid).fetch();
-        console.log("Recording data:", recording); // ✅ Fix: moved before return
+        console.log("Recording data:", recording);
 
         const mediaUrl = `https://api.twilio.com${recording.uri.replace('.json', '.mp3')}`;
         console.log("Downloading recording from:", mediaUrl);
@@ -42,8 +45,8 @@ app.post('/fetch-recording', async (req, res, next) => {
             url: mediaUrl,
             responseType: 'stream',
             auth: {
-                username: TWILIO_ACCOUNT_SID,
-                password: TWILIO_AUTH_TOKEN
+                username: process.env.TWILIO_ACCOUNT_SID, // ✅ Use process.env
+                password: process.env.TWILIO_AUTH_TOKEN  // ✅ Use process.env
             }
         });
 
@@ -64,21 +67,14 @@ app.post('/fetch-recording', async (req, res, next) => {
 
         writer.on('error', (err) => {
             console.error("Error saving file:", err);
-            next(err); // ✅ Fix: Use error-handling middleware instead of sending response twice
+            next(err);
         });
 
     } catch (error) {
         console.error("Error fetching recording:", error);
-        next(error); // ✅ Fix: Pass error to middleware
+        next(error);
     }
 });
 
 // 🛑 Error-handling middleware
 app.use((err, req, res, next) => {
-    console.error("Unhandled error:", err);
-    res.status(500).json({ error: "Internal Server Error", details: err.message });
-});
-
-app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
-});
