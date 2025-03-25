@@ -1,8 +1,7 @@
-// firebase.js
-import { initializeApp } from "firebase/app";
-import { getStorage } from "firebase/storage";
+const { initializeApp } = require("firebase/app");
+const { getStorage } = require("firebase/storage");
 
-// Your Firebase Config (from Firebase Console)
+// Your Firebase Config
 const firebaseConfig = {
     apiKey: process.env.FIREBASE_API_KEY,
     authDomain: process.env.FIREBASE_AUTH_DOMAIN,
@@ -16,4 +15,4 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const storage = getStorage(app);
 
-export { storage };
+module.exports = { storage };
